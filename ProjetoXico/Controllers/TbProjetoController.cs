@@ -121,12 +121,20 @@ public class TbProjetoController : Controller
     {
         try
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                TempData["Mensagem"] = "Erro: usuário não autenticado.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             await _context.Database.ExecuteSqlRawAsync(
-                "CALL ExcluirProjeto({0})",
-                id
+                "CALL sp_ExcluirRegistro({0}, {1})",
+                id,
+                int.Parse(userId)
             );
 
-            TempData["Mensagem"] = "Projeto excluído com sucesso!";
+            TempData["Mensagem"] = "Projeto excluído logicamente com sucesso!";
         }
         catch (Exception ex)
         {
@@ -135,4 +143,5 @@ public class TbProjetoController : Controller
 
         return RedirectToAction("Index");
     }
+
 }
