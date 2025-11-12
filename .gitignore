@@ -1,0 +1,80 @@
+﻿## ==========================================
+## 🧱 .gitignore - Projeto C# / Visual Studio
+## ==========================================
+
+# Visual Studio
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Tt]emp/
+[Tt]est[Rr]esults/
+*.exe
+*.dll
+*.pdb
+*.cache
+*.log
+*.vspscc
+*.vssscc
+*.dbmdl
+
+# ASP.NET specific
+appsettings.*.json
+App_Data/
+*.Publish.xml
+*.pubxml
+*.publishproj
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+
+# Backup & system files
+Thumbs.db
+Desktop.ini
+*.tmp
+*.bak
+
+# NuGet packages
+*.nupkg
+packages/
+*.snupkg
+# Uncomment if you have NuGet Package Restore enabled
+# !packages/build/
+
+# Rider / JetBrains IDE
+.idea/
+*.sln.iml
+
+# ReSharper
+_ReSharper*/
+*.DotSettings.user
+
+# DotCover
+*.dotCover
+
+# Entity Framework
+Migrations/
+
+# Logs
+*.log
+
+# Others
+*.swp
+*.db
+*.jfm
+*.sdf
+*.docstates
+
+# Publish output
+publish/
+wwwroot/lib/

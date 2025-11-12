@@ -1,0 +1,68 @@
+﻿@{
+    ViewData["Title"] = "Login 🔐";
+}
+
+<div class="container min-vh-100 d-flex justify-content-center align-items-center bg-dark text-light">
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden"
+         style="max-width: 420px; width: 100%; background-color: rgba(25, 25, 25, 0.95);">
+
+        <!-- Cabeçalho -->
+        <div class="text-center py-4" style="background: linear-gradient(90deg, #ffb400, #ff8300);">
+            <h3 class="text-dark fw-bold mb-0">🔐 Acesso ao Sistema</h3>
+        </div>
+
+        <!-- Corpo -->
+        <div class="card-body p-5">
+            <h5 class="text-center mb-3 fw-semibold" style="color: #ffb400;">Bem-vindo de volta 👋</h5>
+            <p class="text-center text-light mb-4">Entre com suas credenciais para continuar</p>
+
+            @if (ViewBag.Erro != null)
+            {
+                <div class="alert alert-danger text-center py-2 mb-4" role="alert">
+                    @ViewBag.Erro
+                </div>
+            }
+
+            <form asp-action="Login" method="post">
+                <div class="mb-4 position-relative">
+                    <label for="login" class="form-label fw-semibold text-light">Usuário</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-light text-warning fs-5">👤</span>
+                        <input type="text" class="form-control form-control-lg bg-dark text-light border-light rounded-end"
+                               id="login" name="login" placeholder="Digite seu usuário" required>
+                    </div>
+                </div>
+
+                <div class="mb-4 position-relative">
+                    <label for="senha" class="form-label fw-semibold text-light">Senha</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-light text-warning fs-5">🔒</span>
+                        <input type="password" class="form-control form-control-lg bg-dark text-light border-light rounded-end"
+                               id="senha" name="senha" placeholder="Digite sua senha" required>
+                    </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit"
+                            class="btn btn-lg fw-bold text-dark rounded-4 border-0 shadow-sm"
+                            style="background: linear-gradient(90deg, #ffb400, #ff8300); transition: all 0.2s;">
+                        Entrar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Rodapé -->
+        <div class="card-footer text-center py-3 bg-black border-0 text-secondary small">
+            © 2025 Projeto Xico 🏗️
+        </div>
+    </div>
+</div>
+
+<script>
+    const btn = document.querySelector('button[type="submit"]');
+    if (btn) {
+        btn.addEventListener('mouseenter', () => btn.style.transform = 'scale(1.03)');
+        btn.addEventListener('mouseleave', () => btn.style.transform = 'scale(1)');
+    }
+</script>

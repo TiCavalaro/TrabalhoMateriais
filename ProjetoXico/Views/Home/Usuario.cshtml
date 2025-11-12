@@ -1,0 +1,214 @@
+﻿@model ProjetoXico.Models.UsuarioViewModel
+
+@{
+    ViewData["Title"] = "Usuários 👥";
+}
+
+<div class="container min-vh-100 d-flex flex-column justify-content-start py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@ViewData["Title"]</h2>
+        <button class="btn btn-warning btn-lg" data-bs-toggle="modal" data-bs-target="#inserirModal">
+            ➕ Adicionar Usuário
+        </button>
+    </div>
+
+    @if (TempData["Mensagem"] != null)
+    {
+        <div class="alert alert-success text-center">@TempData["Mensagem"]</div>
+    }
+
+    <!-- Tabela Ativos -->
+    <h3 class="text-success">Usuários Ativos ✅</h3>
+    <table class="table table-striped table-bordered table-dark align-middle text-center">
+        <thead class="table-warning text-dark">
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Bloqueado</th>
+                <th>Ativo</th> <!-- NOVA COLUNA -->
+                <th>Tentativas Falhas</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Ativos)
+            {
+                <tr>
+                    <td>@user.Id</td>
+                    <td>@user.Username</td>
+                    <td>@user.Email</td>
+                    <td>@(user.Bloqueado ? "Sim" : "Não")</td>
+                    <td>@(user.FlAtivo ? "Sim" : "Não")</td> <!-- NOVA COLUNA -->
+                    <td>@user.TentativasFalhas</td>
+                    <td>
+                        <button class="btn btn-sm btn-info me-1"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editarModal"
+                                data-id="@user.Id"
+                                data-username="@user.Username"
+                                data-email="@user.Email"
+                                data-bloqueado="@user.Bloqueado.ToString().ToLower()"
+                                data-ativo="@user.FlAtivo.ToString().ToLower()"
+                                data-tentativas="@user.TentativasFalhas">
+                            ✏️ Editar
+                        </button>
+                        <form asp-action="Excluir" asp-controller="TbUsuario" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@user.Id" />
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Deseja realmente desativar este usuário?');">
+                                🗑️ Desativar
+                            </button>
+                        </form>
+                        @if (user.Bloqueado)
+                        {
+                            <form asp-action="Desbloquear" asp-controller="TbUsuario" method="post" style="display:inline;">
+                                <input type="hidden" name="id" value="@user.Id" />
+                                <button type="submit" class="btn btn-sm btn-success"
+                                        onclick="return confirm('Deseja realmente desbloquear este usuário?');">
+                                    🔓 Desbloquear
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Tabela Inativos -->
+    <h3 class="mt-5 text-danger">Usuários Inativos 🚫</h3>
+    <table class="table table-striped table-bordered table-dark align-middle text-center">
+        <thead class="table-danger text-dark">
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Bloqueado</th>
+                <th>Ativo</th> <!-- NOVA COLUNA -->
+                <th>Tentativas Falhas</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Inativos)
+            {
+                <tr>
+                    <td>@user.Id</td>
+                    <td>@user.Username</td>
+                    <td>@user.Email</td>
+                    <td>@(user.Bloqueado ? "Sim" : "Não")</td>
+                    <td>@(user.FlAtivo ? "Sim" : "Não")</td> <!-- NOVA COLUNA -->
+                    <td>@user.TentativasFalhas</td>
+                    <td>
+                        <button class="btn btn-sm btn-info me-1"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editarModal"
+                                data-id="@user.Id"
+                                data-username="@user.Username"
+                                data-email="@user.Email"
+                                data-bloqueado="@user.Bloqueado.ToString().ToLower()"
+                                data-ativo="@user.FlAtivo.ToString().ToLower()"
+                                data-tentativas="@user.TentativasFalhas">
+                            ✏️ Editar
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
+<!-- Modal Inserir e Editar -->
+<!-- Inserir -->
+<div class="modal fade" id="inserirModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header">
+                <h5 class="modal-title">➕ Adicionar Usuário</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Inserir" asp-controller="TbUsuario" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Username 👤</label>
+                        <input type="text" class="form-control" name="Username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email 📧</label>
+                        <input type="email" class="form-control" name="Email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Senha 🔒</label>
+                        <input type="password" class="form-control" name="Senha" required>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="FlAtivo" value="true" checked />
+                        <label class="form-check-label">Ativo ✅</label>
+                        <input type="hidden" name="FlAtivo" value="false" />
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100">💾 Adicionar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Editar -->
+<div class="modal fade" id="editarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header">
+                <h5 class="modal-title">✏️ Editar Usuário</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Atualizar" asp-controller="TbUsuario" method="post" id="formEditar">
+                    <input type="hidden" name="Id" id="editarId" />
+                    <div class="mb-3">
+                        <label class="form-label">Username 👤</label>
+                        <input type="text" class="form-control" name="Username" id="editarUsername" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email 📧</label>
+                        <input type="email" class="form-control" name="Email" id="editarEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nova Senha 🔒 (opcional)</label>
+                        <input type="password" class="form-control" name="Senha" id="editarSenha">
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" name="Bloqueado" id="editarBloqueado" value="true" />
+                        <label class="form-check-label" for="editarBloqueado">Bloqueado 🔒</label>
+                        <input type="hidden" name="Bloqueado" value="false" />
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" name="FlAtivo" id="editarFlAtivo" value="true" />
+                        <label class="form-check-label" for="editarFlAtivo">Ativo ✅</label>
+                        <input type="hidden" name="FlAtivo" value="false" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tentativas Falhas ❌</label>
+                        <input type="number" class="form-control" name="TentativasFalhas" id="editarTentativas" min="0">
+                    </div>
+                    <button type="submit" class="btn btn-info w-100">💾 Atualizar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const editarModal = document.getElementById('editarModal');
+    if (editarModal) {
+        editarModal.addEventListener('show.bs.modal', event => {
+            const button = event.relatedTarget;
+            document.getElementById('editarId').value = button.getAttribute('data-id');
+            document.getElementById('editarUsername').value = button.getAttribute('data-username');
+            document.getElementById('editarEmail').value = button.getAttribute('data-email');
+            document.getElementById('editarBloqueado').checked = button.getAttribute('data-bloqueado') === 'true';
+            document.getElementById('editarFlAtivo').checked = button.getAttribute('data-ativo') === 'true';
+            document.getElementById('editarTentativas').value = button.getAttribute('data-tentativas');
+        });
+    }
+</script>

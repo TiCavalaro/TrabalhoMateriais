@@ -1,0 +1,273 @@
+﻿@model ProjetoXico.ViewModel.ProjetoViewModel
+
+@{
+    ViewData["Title"] = "Projetos 🏗️";
+}
+
+<div class="container min-vh-100 d-flex flex-column justify-content-start py-4">
+
+    <!-- 🔶 Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-warning">@ViewData["Title"]</h2>
+        <button class="btn btn-warning btn-lg fw-bold" data-bs-toggle="modal" data-bs-target="#inserirModal">
+            ➕ Novo Projeto
+        </button>
+    </div>
+
+    <!-- 🟢 Mensagem -->
+    @if (TempData["Mensagem"] != null)
+    {
+        <div class="alert alert-success text-center shadow">@TempData["Mensagem"]</div>
+    }
+
+    <!-- 🏗️ Projetos Ativos -->
+    <h3 class="text-success mb-3">Projetos Ativos</h3>
+    <div class="table-responsive shadow rounded-3 mb-5">
+        <table class="table table-striped table-bordered table-dark align-middle text-center mb-0">
+            <thead class="table-warning text-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Data Início</th>
+                    <th>Data Fim</th>
+                    <th>Tipo</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Ativos != null && Model.Ativos.Any())
+                {
+                    foreach (var projeto in Model.Ativos)
+                    {
+                        <tr>
+                            <td>@projeto.IdProjeto</td>
+                            <td class="fw-semibold text-warning">@projeto.NomeProjeto</td>
+                            <td>@projeto.DataPlanejadaInicio.ToString("dd/MM/yyyy")</td>
+                            <td>@projeto.DataPlanejadaFim.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                @{
+                                    var tipo = Model.TiposProjeto.FirstOrDefault(t => t.IdTipoProjeto == projeto.TipoProjeto);
+                                    @tipo?.Descricao
+                                }
+                            </td>
+                            <td>@(projeto.FlFinalizado ? "🏁 Finalizado" : "⏳ Em Andamento")</td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-3">
+                                    <!-- 🔸 Aumentado o espaçamento entre botões -->
+                                    <button class="btn btn-sm btn-outline-info px-3 py-2"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editarModal"
+                                            data-id="@projeto.IdProjeto"
+                                            data-nome="@projeto.NomeProjeto"
+                                            data-inicio="@projeto.DataPlanejadaInicio.ToString("yyyy-MM-dd")"
+                                            data-fim="@projeto.DataPlanejadaFim.ToString("yyyy-MM-dd")"
+                                            data-tipo="@projeto.TipoProjeto"
+                                            data-finalizado="@projeto.FlFinalizado"
+                                            data-ativo="@projeto.FlAtivo">
+                                        ✏️ Editar
+                                    </button>
+
+                                    <form asp-action="Excluir" asp-controller="TbProjeto" method="post" style="display:inline;">
+                                        <input type="hidden" name="id" value="@projeto.IdProjeto" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger px-3 py-2"
+                                                onclick="return confirm('Deseja realmente excluir este projeto?');">
+                                            🗑️ Excluir
+                                        </button>
+                                    </form>
+
+                                    <a asp-controller="TbProjetoMaterial"
+                                       asp-action="Index"
+                                       asp-route-projetoId="@projeto.IdProjeto"
+                                       class="btn btn-sm fw-bold text-dark px-3 py-2 shadow-sm"
+                                       style="background-color: #ff8300; border: none; transition: 0.3s;">
+                                        🧱 Materiais
+                                    </a>
+
+                                </div>
+                            </td>
+
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="7" class="text-muted">Nenhum projeto ativo encontrado.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 🔴 Projetos Inativos -->
+    <h3 class="text-danger mb-3">Projetos Encerrados</h3>
+    <div class="table-responsive shadow rounded-3">
+        <table class="table table-striped table-bordered table-dark align-middle text-center mb-0">
+            <thead class="bg-secondary text-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Tipo</th>
+                    <th>Data Início</th>
+                    <th>Data Fim Planejada</th>
+                    <th>Data Finalização</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Inativos != null && Model.Inativos.Any())
+                {
+                    foreach (var projeto in Model.Inativos)
+                    {
+                        <tr>
+                            <td>@projeto.IdProjeto</td>
+                            <td class="fw-semibold text-warning">@projeto.NomeProjeto</td>
+                            <td>
+                                @{
+                                    var tipo = Model.TiposProjeto.FirstOrDefault(t => t.IdTipoProjeto == projeto.TipoProjeto);
+                                    @tipo?.Descricao
+                                }
+                            </td>
+                            <td>@projeto.DataPlanejadaInicio.ToString("dd/MM/yyyy")</td>
+                            <td>@projeto.DataPlanejadaFim.ToString("dd/MM/yyyy")</td>
+                            <td>@(projeto.DataFinalizacao?.ToString("dd/MM/yyyy") ?? "-")</td>
+                            <td>@(projeto.FlFinalizado ? "🏁 Finalizado" : "⏳ Em Andamento")</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-info"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editarModal"
+                                        data-id="@projeto.IdProjeto"
+                                        data-nome="@projeto.NomeProjeto"
+                                        data-inicio="@projeto.DataPlanejadaInicio.ToString("yyyy-MM-dd")"
+                                        data-fim="@projeto.DataPlanejadaFim.ToString("yyyy-MM-dd")"
+                                        data-tipo="@projeto.TipoProjeto"
+                                        data-finalizado="@projeto.FlFinalizado"
+                                        data-ativo="@projeto.FlAtivo">
+                                    ✏️
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="8" class="text-muted">Nenhum projeto encerrado encontrado.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 🟧 Modal Inserir -->
+<div class="modal fade" id="inserirModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light border-warning border-2 rounded-4 shadow-lg">
+            <div class="modal-header border-warning">
+                <h5 class="modal-title text-warning">➕ Novo Projeto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Inserir" asp-controller="TbProjeto" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Nome do Projeto 🏗️</label>
+                        <input type="text" class="form-control bg-secondary text-light border-warning" name="NomeProjeto" required>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label class="form-label">Data Início 📅</label>
+                            <input type="date" class="form-control bg-secondary text-light border-warning" name="DataPlanejadaInicio" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Data Fim 📅</label>
+                            <input type="date" class="form-control bg-secondary text-light border-warning" name="DataPlanejadaFim" required>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label class="form-label">Tipo de Projeto 🧱</label>
+                        <select class="form-select bg-secondary text-light border-warning" name="TipoProjeto" required>
+                            <option value="">Selecione um tipo...</option>
+                            @foreach (var tipo in Model.TiposProjeto)
+                            {
+                                <option value="@tipo.IdTipoProjeto">@tipo.Descricao</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-check mt-3">
+                        <input class="form-check-input border-warning" type="checkbox" id="inserirFlAtivo" name="FlAtivo" value="true" checked>
+                        <label class="form-check-label" for="inserirFlAtivo">Ativo ✅</label>
+                        <input type="hidden" name="FlAtivo" value="false" />
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100 mt-4 fw-bold">💾 Salvar Projeto</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✏️ Modal Editar -->
+<div class="modal fade" id="editarModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light border-info border-2 rounded-4 shadow-lg">
+            <div class="modal-header border-info">
+                <h5 class="modal-title text-info">✏️ Editar Projeto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Atualizar" asp-controller="TbProjeto" method="post">
+                    <input type="hidden" id="editarId" name="IdProjeto" />
+                    <div class="mb-3">
+                        <label class="form-label">Nome do Projeto 🏗️</label>
+                        <input type="text" class="form-control bg-secondary text-light border-info" id="editarNome" name="NomeProjeto" required>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label class="form-label">Data Início 📅</label>
+                            <input type="date" class="form-control bg-secondary text-light border-info" id="editarInicio" name="DataPlanejadaInicio" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Data Fim 📅</label>
+                            <input type="date" class="form-control bg-secondary text-light border-info" id="editarFim" name="DataPlanejadaFim" required>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label class="form-label">Tipo de Projeto 🧱</label>
+                        <select class="form-select bg-secondary text-light border-info" id="editarTipo" name="TipoProjeto" required>
+                            <option value="">Selecione um tipo...</option>
+                            @foreach (var tipo in Model.TiposProjeto)
+                            {
+                                <option value="@tipo.IdTipoProjeto">@tipo.Descricao</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-check mt-3">
+                        <input class="form-check-input border-info" type="checkbox" id="editarFlAtivo" name="FlAtivo" value="true">
+                        <label class="form-check-label" for="editarFlAtivo">Ativo ✅</label>
+                        <input type="hidden" name="FlAtivo" value="false" />
+                    </div>
+                    <div class="form-check mt-3">
+                        <input class="form-check-input border-info" type="checkbox" id="editarFinalizado" name="FlFinalizado" value="true">
+                        <label class="form-check-label" for="editarFinalizado">Finalizado 🏁</label>
+                        <input type="hidden" name="FlFinalizado" value="false" />
+                    </div>
+                    <button type="submit" class="btn btn-info w-100 mt-4 fw-bold">💾 Atualizar Projeto</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const editarModal = document.getElementById('editarModal');
+    if (editarModal) {
+        editarModal.addEventListener('show.bs.modal', event => {
+            const button = event.relatedTarget;
+            document.getElementById('editarId').value = button.getAttribute('data-id');
+            document.getElementById('editarNome').value = button.getAttribute('data-nome');
+            document.getElementById('editarInicio').value = button.getAttribute('data-inicio');
+            document.getElementById('editarFim').value = button.getAttribute('data-fim');
+            document.getElementById('editarTipo').value = button.getAttribute('data-tipo');
+            document.getElementById('editarFinalizado').checked = button.getAttribute('data-finalizado') === 'true';
+            document.getElementById('editarFlAtivo').checked = button.getAttribute('data-ativo') === 'true';
+        });
+    }
+</script>
